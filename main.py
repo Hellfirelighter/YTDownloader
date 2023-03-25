@@ -79,9 +79,29 @@ def setup_ui(window):
         p = int(float(abs(bytes_remaining - size) / size) * float(100))
         current_progress.set(p)
 
+    def callback_select_all(event):
+        # select text after 50ms
+        window.after(50, lambda: event.widget.select_range(0, 'end'))
+
+    def show_contextmenu(event, *args):
+        e_widget = event.widget
+        context_menu = ttk.Menu(window, tearoff=0)
+        context_menu.add_command(label="Cut")
+        context_menu.add_command(label="Copy")
+        context_menu.add_command(label="Paste")
+        context_menu.add_separator()
+        context_menu.add_command(label="Select all")
+        context_menu.entryconfigure("Cut", command=lambda: e_widget.event_generate("<<Cut>>"))
+        context_menu.entryconfigure("Copy", command=lambda: e_widget.event_generate("<<Copy>>"))
+        context_menu.entryconfigure("Paste", command=lambda: e_widget.event_generate("<<Paste>>"))
+        context_menu.entryconfigure("Select all", command=lambda: e_widget.select_range(0, 'end'))
+        context_menu.tk.call("tk_popup", context_menu, event.x_root, event.y_root)
+
     current_url = ttk.StringVar()
     Edit1 = ttk.Entry(window, bootstyle='default', textvariable=current_url)
     Edit1.bind("<<Paste>>", on_paste)
+    Edit1.bind("<Button-3><ButtonRelease-3>", show_contextmenu)
+    Edit1.bind("<Control-a>", callback_select_all)
     Edit1.pack(fill=X, padx=5, pady=5)
     cb_default_text = ttk.StringVar()
     ComboBox1 = ttk.Combobox(window, state='readonly', bootstyle='default', textvariable=cb_default_text)

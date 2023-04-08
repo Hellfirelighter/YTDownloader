@@ -30,14 +30,16 @@ def setup_ui(window):
             window.title('URL is not valid...')
 
     def download_url_list(lst):
-        for i, url in enumerate(lst):
+        for n, url in enumerate(lst):
             try:
                 if Button1['state'] == NORMAL or ACTIVE:
                     Button1['state'] = DISABLED
-                window.title(f'YouTube DownLoader {i+1}/{len(lst)} - {url}')
+                window.title(f'YouTube DownLoader {n+1}/{len(lst)} - {url}')
                 yt = YouTube(url, on_progress_callback=on_progress, on_complete_callback=on_complete)
                 i = ComboBox1.current()
                 yt.streams[i].download()
+                if n == len(lst)-1:
+                    messagebox.showinfo(title='Done!', message='file(s) was successfully downloaded')
             except Exception as _ex:
                 window.title('URL is not valid...')
 
@@ -72,7 +74,6 @@ def setup_ui(window):
     def on_complete(stream, file_path):
         current_progress.set(0)
         Button1['state'] = ACTIVE
-        messagebox.showinfo(title='Done!', message='file(s) was successfully downloaded')
 
     def on_progress(stream, chunk, bytes_remaining):
         size = stream.filesize

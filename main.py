@@ -2,6 +2,9 @@ from pytube import YouTube, Channel, Playlist
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from tkinter import messagebox
+from PIL import Image, ImageTk
+import requests
+from io import BytesIO
 import os
 import sys
 import subprocess
@@ -12,6 +15,20 @@ urls = []
 
 
 def setup_ui(window):
+    def load_image_from_url(url, max_width=390):
+        response = requests.get(url)
+        img_data = response.content
+        img = Image.open(BytesIO(img_data))
+
+        # Обмеження ширини та збереження пропорцій
+        width, height = img.size
+        aspect_ratio = height / width
+        new_width = min(max_width, width)
+        new_height = int(new_width * aspect_ratio)
+        img = img.resize((new_width, new_height), Image.LANCZOS)
+
+        return ImageTk.PhotoImage(img)
+
     def extract_formats(obj):
         lst = []
         try:
@@ -26,6 +43,12 @@ def setup_ui(window):
                     lst.append(f'{stream.type}{only}    {stream.abr}    {int(stream.filesize / (1024 * 1024))} MB')
             ComboBox1['values'] = lst
             cb_default_text.set(lst[0])
+            thumbnail_image = load_image_from_url(obj.thumbnail_url)
+            ImgLabel1.config(image=thumbnail_image)
+            ImgLabel1.image = thumbnail_image
+            window.geometry('400x480')
+            window.eval('tk::PlaceWindow . center')
+            window.title(obj.title)
         except Exception as _ex:
             window.title('URL is not valid...')
 
@@ -103,12 +126,14 @@ def setup_ui(window):
     Edit1.bind("<<Paste>>", on_paste)
     Edit1.bind("<Button-3><ButtonRelease-3>", show_contextmenu)
     Edit1.bind("<Control-a>", callback_select_all)
-    Edit1.pack(fill=X, padx=5, pady=5)
+    Edit1.pack(fill=X, padx=5, pady=(10, 5))
     cb_default_text = ttk.StringVar()
     ComboBox1 = ttk.Combobox(window, state='readonly', bootstyle='default', textvariable=cb_default_text)
     ComboBox1.pack(fill=X, padx=5, pady=5)
+    ImgLabel1 = ttk.Label(window)
+    ImgLabel1.pack(fill=X, padx=5)
     current_progress = ttk.IntVar()
-    current_progress.set(100)
+    current_progress.set(0)
     ProgressBar1 = ttk.Floodgauge(window, bootstyle="danger", mask='{} %', variable=current_progress)
     ProgressBar1.pack(fill=X, padx=5, pady=5)
     Button1 = ttk.Button(window, text='Start', bootstyle='danger-outline', command=lambda: on_start())

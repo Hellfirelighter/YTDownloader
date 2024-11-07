@@ -1,4 +1,4 @@
-from pytube import YouTube, Channel, Playlist
+from pytubefix import YouTube, Channel, Playlist
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from tkinter import messagebox
@@ -50,7 +50,8 @@ def setup_ui(window):
             window.eval('tk::PlaceWindow . center')
             window.title(obj.title)
         except Exception as _ex:
-            window.title('URL is not valid...')
+            window.title(repr(_ex))
+            # window.title('URL is not valid...')
 
     def download_url_list(lst):
         for n, url in enumerate(lst):

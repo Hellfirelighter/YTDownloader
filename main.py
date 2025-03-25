@@ -2,7 +2,7 @@ from pytubefix import YouTube, Channel, Playlist
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from tkinter import filedialog, messagebox
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, _tkinter_finder
 import requests
 from io import BytesIO
 import os
